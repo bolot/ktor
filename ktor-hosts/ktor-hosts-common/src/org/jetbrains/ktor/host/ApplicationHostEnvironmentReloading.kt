@@ -1,5 +1,6 @@
 package org.jetbrains.ktor.host
 
+import com.jdiazcano.cfg4k.providers.*
 import org.jetbrains.ktor.application.*
 import org.jetbrains.ktor.config.*
 import org.jetbrains.ktor.logging.*
@@ -25,10 +26,10 @@ import kotlin.reflect.jvm.*
 class ApplicationHostEnvironmentReloading(
         override val classLoader: ClassLoader,
         override val log: ApplicationLog,
-        override val config: ApplicationConfig,
+        override val configProvider: ConfigProvider,
         override val connectors: List<HostConnectorConfig>,
         private val modules: List<Application.() -> Unit>,
-        private val watchPaths: List<String> = emptyList()
+        val applicationConfiguration: ApplicationConfiguration
 )
     : ApplicationHostEnvironment {
 
@@ -37,10 +38,10 @@ class ApplicationHostEnvironmentReloading(
     private val applicationInstanceLock = ReentrantReadWriteLock()
     private var packageWatchKeys = emptyList<WatchKey>()
 
-    private val watchPatterns: List<String> = (config.propertyOrNull("ktor.deployment.watch")?.getList() ?: listOf()) + watchPaths
+    private val watchPatterns: List<String> = applicationConfiguration.watch
 
     private val moduleFunctionNames: List<String>? = run {
-        val configModules = config.propertyOrNull("ktor.application.modules")?.getList()
+        val configModules = applicationConfiguration.modules
         if (watchPatterns.isEmpty()) configModules
         else {
             val unlinkedModules = modules.map {
@@ -49,7 +50,7 @@ class ApplicationHostEnvironmentReloading(
                 val name = fn.name
                 "${clazz.name}.$name"
             }
-            if (configModules == null)
+            if (configModules.isEmpty())
                 unlinkedModules
             else
                 configModules + unlinkedModules
