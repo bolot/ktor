@@ -7,13 +7,13 @@ import org.jetbrains.ktor.content.*
 import org.jetbrains.ktor.features.*
 import org.jetbrains.ktor.host.*
 import org.jetbrains.ktor.http.*
-import org.jetbrains.ktor.logging.*
 import org.jetbrains.ktor.request.*
 import org.jetbrains.ktor.response.*
 import org.jetbrains.ktor.routing.*
 import org.jetbrains.ktor.util.*
 import org.junit.*
 import org.junit.runners.model.*
+import org.slf4j.*
 import java.io.*
 import java.net.*
 import java.security.*
@@ -936,9 +936,7 @@ abstract class HostTestSuite<THost : ApplicationHost>(hostFactory: ApplicationHo
         val message = "expected, ${nextNonce()}"
         val collected = CopyOnWriteArrayList<Throwable>()
 
-        val log = object : ApplicationLog by SLF4JApplicationLog("ktor.test") {
-            override val name = "DummyLogger"
-            override fun fork(name: String) = this
+        val log = object : Logger by LoggerFactory.getLogger("ktor.test") {
             override fun error(message: String, exception: Throwable?) {
                 if (exception != null) {
                     collected.add(exception)

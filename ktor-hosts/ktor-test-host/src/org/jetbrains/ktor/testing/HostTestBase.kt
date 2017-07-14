@@ -1,8 +1,8 @@
 package org.jetbrains.ktor.testing
 
 import org.jetbrains.ktor.application.*
+import org.jetbrains.ktor.features.*
 import org.jetbrains.ktor.host.*
-import org.jetbrains.ktor.logging.*
 import org.jetbrains.ktor.routing.*
 import org.jetbrains.ktor.util.*
 import org.junit.*
@@ -32,10 +32,10 @@ abstract class HostTestBase<THost : ApplicationHost>(val applicationHostFactory:
         (server as? ApplicationHost)?.stop(100, 5000, TimeUnit.MILLISECONDS)
     }
 
-    protected open fun createServer(log: ApplicationLog?, module: Application.() -> Unit): THost {
+    protected open fun createServer(log: Logger?, module: Application.() -> Unit): THost {
         val _port = this.port
         val environment = applicationHostEnvironment {
-            log?.let { this.log = it  }
+            this.log = log ?: LoggerFactory.getLogger("ktor.test")
             connector { port = _port }
             sslConnector(keyStore, "mykey", { "changeit".toCharArray() }, { "changeit".toCharArray() }) {
                 this.port = sslPort
@@ -47,7 +47,7 @@ abstract class HostTestBase<THost : ApplicationHost>(val applicationHostFactory:
         return embeddedServer(applicationHostFactory, environment)
     }
 
-    protected fun createAndStartServer(log: ApplicationLog? = null, block: Routing.() -> Unit): THost {
+    protected fun createAndStartServer(log: Logger? = null, block: Routing.() -> Unit): THost {
         val server = createServer(log) {
             install(CallLogging)
             install(Routing, block)
