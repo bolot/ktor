@@ -2,9 +2,7 @@ package org.jetbrains.ktor.tests
 
 import com.jdiazcano.cfg4k.loaders.*
 import com.jdiazcano.cfg4k.providers.*
-import com.typesafe.config.*
 import org.jetbrains.ktor.application.*
-import org.jetbrains.ktor.config.*
 import org.jetbrains.ktor.host.*
 import org.jetbrains.ktor.util.*
 import org.junit.*

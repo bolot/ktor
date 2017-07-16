@@ -3,7 +3,6 @@ package org.jetbrains.ktor.host
 import com.jdiazcano.cfg4k.loaders.*
 import com.jdiazcano.cfg4k.providers.*
 import org.jetbrains.ktor.application.*
-import org.jetbrains.ktor.config.*
 import org.jetbrains.ktor.logging.*
 
 /**
